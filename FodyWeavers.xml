@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+	<Tracer
+	  adapterAssembly="Tracer.OpenTelemetry"
+	  logManager="Tracer.OpenTelemetry.LogManagerAdapter"
+	  logger="Tracer.OpenTelemetry.LoggerAdapter"
+	  staticLogger=""
+	  disabled="false"
+	  filter="pattern">
+		<!-- do not trace properties -->
+		<!-- These apply in 'most specified' order, falling back to order in this file. -->
+		<!-- example: https://github.com/csnemes/tracer/blob/1bb875157b28af06bfc856f9ae80174a4c092bec/Tracer.Fody.Tests/Filters/PatternFilter/PatternFilterTests.cs -->
+		<!-- Alternative: just use TraceOn/NoTrace/NoReturnTrace (which accepts visibility only) in this config file or as attributes on classes/methods/parameters etc -->
+		<Off pattern="*" />
+		<On pattern="..[public]*.[public]*" />
+		<!-- trace everything public -->
+		<Off pattern="*.*.[static|method]Main" />
+		<!-- disable Main(), no tracer will be connected yet anyway -->
+
+		<Off pattern = "..*.ToString" />
+		<Off pattern = "..*.Equals" />
+		<Off pattern = "..*.GetHashCode" />
+		<Off pattern = "..*.op_*" />
+
+		<!-- TODO: [bug] set and get might be inverted in the code -->
+		<Off pattern="..[public]*.[get|set]*" />
+		<!-- needs [public] to be as specific as above || I'd probably not evangelize the filters approach due to complexity of the matching -->
+	</Tracer>
+  <ToString />
+  <Visualize />
+  <With />
+</Weavers>

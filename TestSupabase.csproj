@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="EasyCaching.InMemory" Version="1.9.0" />
+    <PackageReference Include="EasyCaching.Interceptor.Castle" Version="1.9.0" />
+    <!--<PackageReference Include="EasyCaching.Memcached" Version="1.7.0" />-->
+    <PackageReference Include="EasyCaching.Serialization.MessagePack" Version="1.9.0" />
+    <PackageReference Include="Icomm.Caching.EasyCaching" Version="0.1.1.1" />
+    <PackageReference Include="Icomm.Configs.Providers.HttpProvider" Version="0.1.6.1" />
+    <PackageReference Include="Icomm.Hosting.Abstract" Version="0.2.6" />
+    <PackageReference Include="Icomm.Logs" Version="0.1.8" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Polly" Version="7.2.4" />
+    <PackageReference Include="RestSharp" Version="110.2.0" />
+    <PackageReference Include="supabase-csharp" Version="0.15.0" />
+  </ItemGroup>
+  <ItemGroup Label="OpenTelemetry">
+    <PackageReference Include="Icomm.Telemetry" Version="0.1.3.2" />
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.ElasticsearchClient" Version="1.0.0-beta.3" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.3" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.GrpcCore" Version="1.0.0-beta.5" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.0.0-rc9.7" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.Hangfire" Version="1.0.0-beta.2" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.Quartz" Version="1.0.0-alpha.1" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.0.0-rc9.7" />-->
+    <!--<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.7" />-->
+  </ItemGroup>
+  <ItemGroup Label="Fody">
+    <PackageReference Include="Fody" Version="6.8.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ToString.Fody" Version="1.11.1" PrivateAssets="all" />
+    <PackageReference Include="Tracer.Fody" Version="3.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Tracer.OpenTelemetry.Fody" Version="3.3.2" />
+    <PackageReference Include="Visualize.Fody" Version="1.2.0" PrivateAssets="all" />
+    <PackageReference Include="With.Fody" Version="0.9.0" />
+  </ItemGroup>
+  <ItemGroup Label="k8sgencli-appsettings">
+    <Watch Include="appsettings.json" />
+    <Watch Include="appsettings.*.json" />
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Update="appsettings.*.json;">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <DependentUpon>appsettings.json</DependentUpon>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+  </ItemGroup>
+</Project>
