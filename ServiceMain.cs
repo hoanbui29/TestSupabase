@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Context;
@@ -7,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Postgrest.Attributes;
+using Serilog;
+using Supabase.Realtime;
 using Supabase.Realtime.Models;
 
 namespace Icomm
@@ -15,8 +18,15 @@ namespace Icomm
     {
         GetNextJob,
         AssignJob,
-        JobReport
     }
+
+    public enum AgentRequestEventType
+    {
+        Dispose = -1,
+        GetNewWorkersRequest,
+        GetNewWorkerResponse,
+    }
+
 
     public class ProxyServerDto
     {
@@ -247,6 +257,7 @@ namespace Icomm
 
     public class AgentChannelBroadcastMessage : BaseBroadcast
     {
+        public AgentRequestEventType EventType { get; set; }
         public IEnumerable<string> WorkerChannelIds { get; set; }
     }
 
@@ -276,6 +287,8 @@ namespace Icomm
             broadCast.AddBroadcastEventHandler(async (sender, baseBroadcast) =>
             {
                 var response = broadCast.Current();
+                Log.Information("Received {workers} workers", response.WorkerChannelIds.Count());
+                List<RealtimeBroadcast<BroadcastMessage>> workerBroadCasts = new List<RealtimeBroadcast<BroadcastMessage>>();
                 foreach (var workerChannelId in response.WorkerChannelIds)
                 {
                     Console.WriteLine($"Worker Channel Id: {workerChannelId}");
@@ -284,7 +297,7 @@ namespace Icomm
                     workerBroadCast.AddBroadcastEventHandler(async (s, b) =>
                     {
                         var workerResponse = workerBroadCast.Current();
-                        Console.WriteLine("Received message id: " + workerResponse.Data.Action.Id);
+                        Console.WriteLine("Received message id: " + workerResponse.Data.Action.Id + " from worker: " + workerChannelId);
                         Console.WriteLine(JsonConvert.SerializeObject(workerResponse.Data));
                         await workerBroadCast.Send(null, new BroadcastMessage()
                         {
@@ -293,13 +306,26 @@ namespace Icomm
 
                     });
                     await workerChannel.Subscribe();
-                    await workerBroadCast.Send(null, new BroadcastMessage()
+                    Log.Information("Subscribe to worker channel");
+                    workerBroadCasts.Add(workerBroadCast);
+                }
+
+                await Task.WhenAll(workerBroadCasts.Select(s =>
+                {
+                    Log.Information("Get next job");
+                    return s.Send(null, new BroadcastMessage()
                     {
                         EventType = BroadcastEventType.GetNextJob,
                     });
                 }
+                    ));
+
             });
             await channel.Subscribe();
+            await broadCast.Send("Get new workers", new AgentChannelBroadcastMessage()
+            {
+                EventType = AgentRequestEventType.GetNewWorkersRequest,
+            });
         }
     }
 }
